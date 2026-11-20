@@ -191,6 +191,11 @@ static void j873g_run_proxy(void)
         fb_display_logo();
         fb_set_active(true);
 #endif
+        /* Recovery refuses boot-args while the default startup disk is at
+         * Full Security, so J804 always stays on DebugUSB in the proxy and
+         * never loads the ESP payload. */
+        boot_options_force_debug_proxy();
+        printf("J804: proxy on DebugUSB (aura-debug aura-proxy built in)\n");
         printf("Initialization complete.\n");
         run_actions();
         return;

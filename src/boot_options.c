@@ -54,6 +54,12 @@ void boot_options_set_stage1(bool stage1)
     is_stage1 = stage1;
 }
 
+void boot_options_force_debug_proxy(void)
+{
+    debug_enabled = true;
+    proxy_requested = true;
+}
+
 bool aura_proxy_enabled(void)
 {
     return is_stage1 && proxy_requested;
