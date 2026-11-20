@@ -173,10 +173,28 @@ static void j873g_run_proxy(void)
     const char *model = adt_getprop(adt, 0, "model", &model_len);
     const char *target = adt_getprop(adt, 0, "target-type", &target_len);
 
-    if (board_id != 0x24 || !model || model_len != sizeof("Mac18,5") ||
-        memcmp(model, "Mac18,5", sizeof("Mac18,5")) || !target ||
-        target_len != sizeof("J873g") || memcmp(target, "J873g", sizeof("J873g")))
+#define T8152_IS(b, m, t)                                                                         \
+    (board_id == (b) && model && model_len == sizeof(m) && !memcmp(model, m, sizeof(m)) &&         \
+     target && target_len == sizeof(t) && !memcmp(target, t, sizeof(t)))
+    bool j804 = T8152_IS(0x22, "Mac18,1", "J804");
+    if (!j804 && !T8152_IS(0x24, "Mac18,5", "J873g"))
         panic("Unsupported T8152 board\n");
+
+    if (j804) {
+        /* J804 bring-up, not qualified: the J873g port with the boot CPU only
+         * and the firmware framebuffer. No SMP, PMGR or display init. */
+        printf("J804: KIS bring-up, boot CPU only\n");
+        mmu_init();
+        wdt_disable();
+#ifdef USE_FB
+        fb_init(false);
+        fb_display_logo();
+        fb_set_active(true);
+#endif
+        printf("Initialization complete.\n");
+        run_actions();
+        return;
+    }
 
     /* Adopt firmware power and USB state. Only the qualified display route
      * may be initialized here; secondary CPUs remain parked for the proxy. */
