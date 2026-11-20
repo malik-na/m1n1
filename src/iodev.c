@@ -15,7 +15,11 @@
 #endif
 
 /* 1 MiB: the M6 debug link drops during DCP bring-up; the reconnected reader gets the backlog. */
+/* Overridable: the buffer is .bss inside the raw image, and a Stage 1's size
+ * is bounded by what iBoot accepts as a boot object. */
+#ifndef CONSOLE_BUFFER_SIZE
 #define CONSOLE_BUFFER_SIZE (1 << 20)
+#endif
 
 extern struct iodev iodev_uart;
 extern struct iodev iodev_dockchannel_uart;
